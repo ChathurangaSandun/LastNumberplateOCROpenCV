@@ -7,7 +7,10 @@ import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.MatOfPoint2f;
+import org.opencv.core.Point;
+import org.opencv.core.RotatedRect;
 import org.opencv.core.Scalar;
+import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
 import java.util.ArrayList;
@@ -130,7 +133,7 @@ public class DetectPlates {
 
     }
 
-    private void extractPlate(Mat imgOriginalScene, ArrayList<PossibleChar> listOfMatchingChars) {
+    private PossiblePlate  extractPlate(Mat imgOriginalScene, ArrayList<PossibleChar> listOfMatchingChars) {
         PossiblePlate possiblePlate = new PossiblePlate();
 
 
@@ -151,10 +154,13 @@ public class DetectPlates {
         }
 
 
-        double fltPlateCenterX = (listOfMatchingChars.get(0).intCenterX + listOfMatchingChars.get(listOfMatchingChars.size() - 1).intCenterX) / 2.0;
-        double fltPlateCenterY = (listOfMatchingChars.get(0).intCenterY + listOfMatchingChars.get(listOfMatchingChars.size() - 1).intCenterY) / 2.0;
+        double fltPlateCenterX = (listOfMatchingChars.get(0).getIntCenterX() + listOfMatchingChars.get(listOfMatchingChars.size() - 1).getIntCenterX()) / 2.0;
+        double fltPlateCenterY = (listOfMatchingChars.get(0).getIntCenterY() + listOfMatchingChars.get(listOfMatchingChars.size() - 1).getIntCenterY()) / 2.0;
 
 //ptPlateCenter = fltPlateCenterX, fltPlateCenterY//TODO Define Center
+
+
+        Point p2dPlateCenter = new Point(fltPlateCenterX,fltPlateCenterY);
 
         int intPlateWidth = (int)((listOfMatchingChars.get(listOfMatchingChars.size() - 1).getBoundingRect().x + listOfMatchingChars.get(listOfMatchingChars.size() - 1).getBoundingRect().width - listOfMatchingChars.get(0).getBoundingRect().x) * PLATE_WIDTH_PADDING_FACTOR);
 
@@ -169,19 +175,34 @@ public class DetectPlates {
 
         int intPlateHeight = (int)(fltAverageCharHeight * PLATE_HEIGHT_PADDING_FACTOR);
 
+        //rotation correction
+
+        double fltOpposite = listOfMatchingChars.get(listOfMatchingChars.size() - 1).getIntCenterY() - listOfMatchingChars.get(0).getIntCenterY();
+        double fltHypotenuse = new DetectChars().distanceBetweenChars(listOfMatchingChars.get(0), listOfMatchingChars.get(listOfMatchingChars.size() - 1));
+        double fltCorrectionAngleInRad = Math.asin(fltOpposite / fltHypotenuse);
+        double fltCorrectionAngleInDeg = fltCorrectionAngleInRad * (180.0 / Math.PI);
 
 
+        RotatedRect rrLocationOfPlateInScene = new RotatedRect(p2dPlateCenter,new Size((float)intPlateWidth, (float)intPlateHeight),(float)fltCorrectionAngleInDeg);
+
+        possiblePlate.setRrLocationOfPlateInScene(rrLocationOfPlateInScene);
+
+        Mat rotationMatrix =  new Mat ( imgOriginalScene.size(), CvType.CV_8U, new Scalar(4)); ;
+        Mat imgRotated = new Mat ( imgOriginalScene.size(), CvType.CV_8U, new Scalar(4)); ;;
+        Mat imgCropped= new Mat ( imgOriginalScene.size(), CvType.CV_8U, new Scalar(4));
+
+        rotationMatrix= Imgproc.getRotationMatrix2D(p2dPlateCenter, fltCorrectionAngleInDeg, 1.0);//rotation matrix for our calculated correction angle
+
+        Imgproc.warpAffine(imgOriginalScene,imgRotated,rotationMatrix,imgOriginalScene.size()); //rotate
+
+        // crop out the actual plate portion of the rotated image
+
+        Imgproc.getRectSubPix(imgRotated,possiblePlate.getRrLocationOfPlateInScene().size,possiblePlate.getRrLocationOfPlateInScene().center,imgCropped);
+
+        possiblePlate.setImgPlate(imgCropped);
 
 
-
-
-
-
-
-
-
-
-
+        return possiblePlate;
 
 
 

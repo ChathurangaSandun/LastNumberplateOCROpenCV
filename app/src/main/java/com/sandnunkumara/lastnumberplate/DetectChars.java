@@ -140,7 +140,7 @@ public class DetectChars {
         return listOfMatchingChars;
     }
 
-    private double angleBetweenChars(PossibleChar firstChar, PossibleChar secondChar) {
+    public double angleBetweenChars(PossibleChar firstChar, PossibleChar secondChar) {
 //trigonometry
         double dblAdj = Math.abs(firstChar.getIntCenterX() - secondChar.getIntCenterX());
         double dblOpp = Math.abs(firstChar.getIntCenterY()- secondChar.getIntCenterY());
@@ -153,7 +153,7 @@ public class DetectChars {
     }
 
 
-    private double distanceBetweenChars(PossibleChar firstChar, PossibleChar secondChar) {
+    public double distanceBetweenChars(PossibleChar firstChar, PossibleChar secondChar) {
         //Pythagorean
         int X= Math.abs(firstChar.getIntCenterX() - secondChar.getIntCenterX());
         int Y = Math.abs(firstChar.getIntCenterY() - secondChar.getIntCenterY());
