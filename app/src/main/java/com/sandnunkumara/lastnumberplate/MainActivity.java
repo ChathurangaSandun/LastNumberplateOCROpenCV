@@ -109,8 +109,9 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-        Mat imgOriginalScene = new Mat(inputImage.getHeight(), inputImage.getWidth(), CvType.CV_8U, new Scalar(4));  // input image
+        Mat imgOriginalScene = new Mat(inputImage.getHeight(), inputImage.getWidth(), CvType.CV_32F, new Scalar(4));  // input image
         Utils.bitmapToMat(myBitmap32, imgOriginalScene); // image -> mat
+        //imgOriginalScene.convertTo(imgOriginalScene,CvType.CV_32F);
 
 
        new DetectPlates().detectPlatesInScene(imgOriginalScene);

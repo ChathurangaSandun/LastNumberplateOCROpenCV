@@ -38,6 +38,8 @@ public class DetectPlates {
         // this will be the return value
 
 
+        ArrayList<PossiblePlate> listOfPossiblePlates = new ArrayList<>();
+
 
 
         Mat imgGrayscaleScene ;
@@ -110,10 +112,15 @@ public class DetectPlates {
 
         for (ArrayList<PossibleChar> listOfMatchingChars:
                 listOfListsOfMatchingCharsInScene) {
-            extractPlate(imgOriginalScene,listOfMatchingChars);
-            Log.i("step 4", "char segment");
+            PossiblePlate possiblePlate = extractPlate(imgOriginalScene, listOfMatchingChars);
 
+/*
+            if(!possiblePlate.getImgPlate().empty() ){
+                listOfPossiblePlates.add(possiblePlate);
+            }*/
         }
+
+        Log.i("step 4", "detectPlatesInScene: found "+ listOfPossiblePlates.size() + "plates");
 
         
 
@@ -190,6 +197,10 @@ public class DetectPlates {
         Mat rotationMatrix =  new Mat ( imgOriginalScene.size(), CvType.CV_8U, new Scalar(4)); ;
         Mat imgRotated = new Mat ( imgOriginalScene.size(), CvType.CV_8U, new Scalar(4)); ;;
         Mat imgCropped= new Mat ( imgOriginalScene.size(), CvType.CV_8U, new Scalar(4));
+
+        //imgOriginalScene.convertTo(imgOriginalScene,CvType.CV_32F);
+
+
 
         rotationMatrix= Imgproc.getRotationMatrix2D(p2dPlateCenter, fltCorrectionAngleInDeg, 1.0);//rotation matrix for our calculated correction angle
 
