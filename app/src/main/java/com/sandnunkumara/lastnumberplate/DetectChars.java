@@ -1,6 +1,10 @@
 package com.sandnunkumara.lastnumberplate;
 
 
+import org.opencv.core.Core;
+import org.opencv.core.Mat;
+import org.opencv.core.Point;
+
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.lang.Math.*;
@@ -35,7 +39,7 @@ public class DetectChars {
 
 
 
-
+    static Mat s6 = new Mat();
 
 
 
@@ -130,10 +134,6 @@ public class DetectChars {
                 listOfMatchingChars.add(possibleMatchingChar);   // if the chars are a match, add the current char to vector of matching chars
 
             }
-
-
-
-
         }
 
 
@@ -161,5 +161,43 @@ public class DetectChars {
         double distance = Math.sqrt(Math.pow(X,2)+Math.pow(Y,2));
 
         return distance;
+    }
+
+    public ArrayList<PossiblePlate> detectCharsInPlates(ArrayList<PossiblePlate> listOfPossiblePlates) {
+
+        int intPlateCounter = 0;
+
+        Mat imgContours = new Mat();
+
+
+        ArrayList<ArrayList<Point>>  contours = new ArrayList<>();
+
+        if(listOfPossiblePlates.isEmpty()){
+            return listOfPossiblePlates;
+        }
+
+
+        for (PossiblePlate possiblePlate:listOfPossiblePlates
+             ) {
+            Mat[] preProcess = new PreProcess().getPreProcess(possiblePlate.getImgPlate());
+
+            possiblePlate.setImgGrayscale(preProcess[0]);
+            possiblePlate.setImgThresh(preProcess[1]);
+
+            s6 = possiblePlate.getImgGrayscale();
+
+
+
+
+        }
+
+
+
+
+
+
+
+
+        return listOfPossiblePlates;
     }
 }

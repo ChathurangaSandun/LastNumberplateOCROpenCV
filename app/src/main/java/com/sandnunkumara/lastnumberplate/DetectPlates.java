@@ -24,14 +24,16 @@ import java.util.Random;
  */
 public class DetectPlates {
 
-    static Mat s2b,s3;
+
+    static Mat s2b,s3,s5,s4a;
 
     double PLATE_WIDTH_PADDING_FACTOR = 1.3;
     double PLATE_HEIGHT_PADDING_FACTOR = 1.5;
+    Scalar SCALAR_RED = new Scalar(0.0, 0.0, 255.0);
 
 
 
-    public void detectPlatesInScene(Mat imgOriginalScene){
+    public ArrayList<PossiblePlate> detectPlatesInScene(Mat imgOriginalScene){
 
         //std::vector<PossiblePlate> vectorOfPossiblePlates;
         //
@@ -114,28 +116,31 @@ public class DetectPlates {
                 listOfListsOfMatchingCharsInScene) {
             PossiblePlate possiblePlate = extractPlate(imgOriginalScene, listOfMatchingChars);
 
-/*
+
             if(!possiblePlate.getImgPlate().empty() ){
                 listOfPossiblePlates.add(possiblePlate);
-            }*/
+            }
         }
 
         Log.i("step 4", "detectPlatesInScene: found "+ listOfPossiblePlates.size() + "plates");
 
-        
 
 
+        for(int i = 0;i<listOfPossiblePlates.size();i++){
 
 
+            Point p2fRectPoints[] = new Point[4];
 
+            listOfPossiblePlates.get(i).getRrLocationOfPlateInScene().points(p2fRectPoints);
+            for (int j = 0; j < 4; j++) {
+                Imgproc.line(s3, p2fRectPoints[j],p2fRectPoints[(j + 1) % 4], SCALAR_RED, 2);
+            }
 
+            s4a = s3;
 
+        }
 
-
-
-
-
-
+        return listOfPossiblePlates;
 
 
     }
@@ -194,11 +199,11 @@ public class DetectPlates {
 
         possiblePlate.setRrLocationOfPlateInScene(rrLocationOfPlateInScene);
 
-        Mat rotationMatrix =  new Mat ( imgOriginalScene.size(), CvType.CV_8U, new Scalar(4)); ;
-        Mat imgRotated = new Mat ( imgOriginalScene.size(), CvType.CV_8U, new Scalar(4)); ;;
-        Mat imgCropped= new Mat ( imgOriginalScene.size(), CvType.CV_8U, new Scalar(4));
+        Mat rotationMatrix =  new Mat ( ); ;
+        Mat imgRotated = new Mat ();
+        Mat imgCropped= new Mat ();
 
-        //imgOriginalScene.convertTo(imgOriginalScene,CvType.CV_32F);
+       // imgOriginalScene.convertTo(imgOriginalScene,CvType.CV_32FC3);
 
 
 
@@ -208,17 +213,20 @@ public class DetectPlates {
 
         // crop out the actual plate portion of the rotated image
 
-        Imgproc.getRectSubPix(imgRotated,possiblePlate.getRrLocationOfPlateInScene().size,possiblePlate.getRrLocationOfPlateInScene().center,imgCropped);
 
-        possiblePlate.setImgPlate(imgCropped);
+        Log.i("step 4", "extractPlate: "+possiblePlate.getRrLocationOfPlateInScene().boundingRect().width  );
+
+//        Imgproc.getRectSubPix(imgOriginalScene,possiblePlate.getRrLocationOfPlateInScene().size,possiblePlate.getRrLocationOfPlateInScene().center,imgCropped,-1);
+
+
+       Mat subMat = new Mat(imgOriginalScene.size(), CvType.CV_8UC3, new Scalar(4));
+        subMat = imgOriginalScene.submat(listOfMatchingChars.get(0).getIntCenterY(), listOfMatchingChars.get(0).getIntCenterY() + intPlateHeight, listOfMatchingChars.get(0).getIntCenterX(), listOfMatchingChars.get(0).getIntCenterX() + intPlateWidth);
+
+        possiblePlate.setImgPlate(subMat);
+        s5 = imgRotated;
 
 
         return possiblePlate;
-
-
-
-
-
 
 
     }

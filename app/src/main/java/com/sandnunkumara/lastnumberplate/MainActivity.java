@@ -60,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
         Mat temp = new Mat ( inputImage.getHeight(), inputImage.getWidth(), CvType.CV_8U, new Scalar(4));
 */
 
-        Bitmap myBitmap32 = inputImage.copy(Bitmap.Config.ARGB_8888, true);
+        Bitmap myBitmap32 = inputImage.copy(Bitmap.Config.RGB_565, true);
   //      Utils.bitmapToMat(myBitmap32, ImageMatin);//myBitmap32
 /*
 
@@ -114,11 +114,15 @@ public class MainActivity extends AppCompatActivity {
         //imgOriginalScene.convertTo(imgOriginalScene,CvType.CV_32F);
 
 
-       new DetectPlates().detectPlatesInScene(imgOriginalScene);
+        ArrayList<PossiblePlate> listOfPossiblePlates = new DetectPlates().detectPlatesInScene(imgOriginalScene);
+
+        new DetectChars().detectCharsInPlates(listOfPossiblePlates);
 
 
-        Utils.matToBitmap(DetectPlates.s3, myBitmap32);
+        Utils.matToBitmap(DetectPlates.s4a, myBitmap32);
         imgView.setImageBitmap(myBitmap32);
+
+
     }
 
     @Override
